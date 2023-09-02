@@ -11,8 +11,11 @@ artikel_raus <- c('METHADON-PAUSCHALE', 'SARS', 'Masken')
 
 data <- data.frame()
 for (i in list_files) {
-  data_sem <- read.xlsx(paste0("C:/Analyse_Apotheke/Verkaeufe/Zentrum/", i), colNames = T, rowNames = F,
-                    na.strings = c('', ' '), detectDates = T)
+  print(i)
+  data_sem <- read.xlsx(paste0("C:/Analyse_Apotheke/Verkaeufe/Zentrum/", i), 
+                        colNames = TRUE, rowNames = FALSE,
+                    na.strings = c('', ' '), detectDates = TRUE)
+  
   data <- rbind(data, data_sem)
 }
 
@@ -25,15 +28,24 @@ data2 <- data %>%
 
 # Topseller einlesen:
 
-tops <- xlsx::read.xlsx(paste0("C:/Analyse_Apotheke/Topseller.xlsx"),
-                         sheetIndex = 1, encoding = 'latin1', header = T)
-tops <- tops %>%
-  mutate(Topseller = 'ja') %>%
-  select(Pharmacode = PH.Code, Topseller)
+tops_2022 <- xlsx::read.xlsx(paste0("C:/Analyse_Apotheke/Topseller_2022.xlsx"),
+                         sheetIndex = 1, encoding = 'latin1', header = T) %>% 
+  mutate(Jahr = 2022,
+         Topseller = 'ja') %>% 
+  select(Pharmacode = PH.Code, Jahr, Topseller)
+
+tops_2023 <- xlsx::read.xlsx(paste0("C:/Analyse_Apotheke/Topseller_2023.xlsx"),
+                             sheetIndex = 1, encoding = 'latin1', header = T) %>% 
+  mutate(Jahr = 2023,
+         Topseller = 'ja') %>% 
+  select(Pharmacode = PH.Code, Jahr, Topseller) %>% 
+  mutate(Pharmacode = as.numeric(Pharmacode))
+
+tops <- rbind(tops_2022, tops_2023)
 
 # Masse einlesen:
 
-masse <- xlsx::read.xlsx(paste0("C:/Users/jerome/Analyse_Apotheke/Produkte_Masse.xlsx"),
+masse <- xlsx::read.xlsx(paste0("C:/Analyse_Apotheke/Produkte_Masse.xlsx"),
                          sheetIndex = 1, encoding = 'latin1', header = T)
 masse$Witdh <- as.numeric(masse$Witdh)
 masse$Height <- as.numeric(masse$Height)
@@ -47,7 +59,7 @@ masse_cm <- masse %>%
   select(Pharmacode, Width_cm, Height_cm, Depth_cm)
 
 # Sortimentscode einlesen:
-sortimentscode <- xlsx::read.xlsx(paste0("C:/Users/jerome/Analyse_Apotheke/Sortimentscode.xlsx"),
+sortimentscode <- xlsx::read.xlsx(paste0("C:/Analyse_Apotheke/Sortimentscode.xlsx"),
                              sheetIndex = 1, encoding = 'UTF-8', header = F)
 
 sortimentscode$Code <- substring(sortimentscode$X1, 1,12)
@@ -96,8 +108,8 @@ data_prep <- data2 %>%
                                            TRUE ~ Lagerort.2.des.Artikels),
          Marge = Verkaufspreis-Lagerpreis,
          Marge_perc = Marge/Verkaufspreis*100,
-         Abgabedatum = as.Date(Abgabedatum, "%d-%m-%Y"),
-         Jahr = format(Abgabedatum, format = "%Y"),
+         #Abgabedatum = as.Date(Abgabedatum, "%d-%m-%Y"),
+         Jahr = as.numeric(format(Abgabedatum, format = "%Y")),
          Monat = format(Abgabedatum, format = "%m"),
          Umsatz = Anzahl.Packungen * Verkaufspreis,
          Kumulierte_Absolute_Marge = Anzahl.Packungen*Marge,
@@ -111,7 +123,7 @@ data_prep <- data2 %>%
          Relevant = case_when(Ausstellen == 'ja' & Selbstwahl == 'ja' & Verkaufsart == 'Bar' ~ 'ja',
                               TRUE ~ 'nein')) %>%
   drop_na(Pharmacode) %>%
-  filter(Jahr %in% c(2021, 2022))
+  filter(Jahr %in% c(2021, 2022, 2023))
 
 # Monatsauswertung Verkaufszahlen
 data_month_sum <- data_prep %>%
@@ -145,7 +157,7 @@ monatsauswertung <- data_allg_ang %>%
          Lagerort.des.Artikels, Lagerort.2.des.Artikels, Code, Verkaufsart, Doppelplatzierung, Selbstwahl, Ausstellen) %>%
   left_join(sortimentscode_full, by = 'Code') %>%
   left_join(masse_cm, by = 'Pharmacode') %>%
-  left_join(tops, by = 'Pharmacode') %>%
+  left_join(tops, by = c('Pharmacode', 'Jahr')) %>%
   mutate(Topseller = case_when(is.na(Topseller) ~ 'nein',
                                TRUE ~ Topseller)) %>%
   drop_na(Artikelbezeichnung) %>%
@@ -160,7 +172,7 @@ jahresauswertung <- data_allg_ang %>%
          Lagerort.des.Artikels, Lagerort.2.des.Artikels, Code, Verkaufsart, Doppelplatzierung, Selbstwahl, Ausstellen) %>%
   left_join(sortimentscode_full, by = 'Code') %>%
   left_join(masse_cm, by = 'Pharmacode') %>%
-  left_join(tops, by = 'Pharmacode') %>%
+  left_join(tops, by = c('Pharmacode', 'Jahr')) %>%
   mutate(Topseller = case_when(is.na(Topseller) ~ 'nein',
                                TRUE ~ Topseller)) %>%
   drop_na(Artikelbezeichnung) %>%
@@ -172,6 +184,8 @@ jahresauswertung <- data_allg_ang %>%
 tot_allg_ang <- data_allg_ang %>%
   select(-Jahr) %>%
   distinct(Artikelbezeichnung, Pharmacode, Verkaufsart, Relevant, .keep_all = T)
+top_uni <- tops %>% 
+  distinct(Pharmacode, Topseller)
 
 gesamtauswertung <- tot_allg_ang %>%
   left_join(data_tot_sum, by = c('Pharmacode', 'Artikelbezeichnung', 'Verkaufsart', 'Relevant')) %>%
@@ -195,7 +209,8 @@ write.xlsx(jahresauswertung, file = paste0(dat_path, 'Jahresauswertung.xlsx'), s
             colNames = T, rowNames = F)
 write.xlsx(monatsauswertung, file = paste0(dat_path, 'Monatsauswertung.xlsx'), sep = ';',
             colNames = T, rowNames = F)
-
+write.table(monatsauswertung, file = paste0(dat_path, 'Monatsauswertung.csv'), sep = ';',
+            row.names = FALSE, col.names = TRUE, fileEncoding = "latin1")
 
 
 aendert <- data_prep %>%
