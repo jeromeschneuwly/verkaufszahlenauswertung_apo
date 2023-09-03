@@ -6,7 +6,8 @@ library(shinyWidgets)
 library(plotly)
 library(shinycssloaders)
 library(ggplot2)
-
+library(janitor)
+options(scipen = 999)
 zentrum_path <- "C:/Analyse_Apotheke/Zentrum_Auswertung/"
 glatt_path <- "C:/Analyse_Apotheke/Glatt_Auswertung/"
 

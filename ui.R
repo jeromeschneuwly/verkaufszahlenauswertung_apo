@@ -20,7 +20,7 @@ ui <- fluidPage(
       conditionalPanel(
         "input.timeaggregation == 'Zeitraum'",
         dateRangeInput('dateRange',label = "Zeitraum:", format = "dd.mm.yyyy", 
-                       language = "de", start = "2022-09-01", end = Sys.Date(),
+                       language = "de", start = "2022-09-01", end = "2023-08-31",
                        startview = "year", separator = " - ")
       ),
       uiOutput("detailselection"),
@@ -33,10 +33,15 @@ ui <- fluidPage(
     mainPanel(
       tabsetPanel(
         tabPanel("Einzelauswertung", 
-                 plotOutput("yearlyplot"),
-                 tableOutput("testout")
+                 plotOutput("zeitraumplot"),
+                 tableOutput("einzeltable")
+                 ),
+        tabPanel("Monatsauswertung",
+                 plotOutput("monatsplot")
                  ),
         tabPanel("Gesamtauswertung",
+                 plotOutput("gesamtauswertung"),
+                 tableOutput("totaltable")
                  )
         
       )
