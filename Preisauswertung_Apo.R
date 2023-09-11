@@ -100,7 +100,7 @@ sortimentscode_full <- sortimentscode %>%
 data_prep <- data2 %>%
   rename(Code = Sortimentscode, Pharmacode = Pharmacode.des.Artikels) %>%
   mutate(tpd_col = str_sub(Artikelbezeichnung, 1,3)) %>%
-  filter(!Swissmedic.Kategorie %in% c('A', 'B') & Anzahl.Packungen > 0 & !tpd_col %in% c('TPD', 'WOC', 'H21') & 
+  filter(Anzahl.Packungen > 0 & !tpd_col %in% c('WOC') & #!tpd_col %in% c('TPD', 'WOC', 'H21') & !Swissmedic.Kategorie %in% c('A', 'B') & 
            Verkaufspreis > 0 & !str_detect(Artikelbezeichnung, paste(artikel_raus, collapse = "|"))) %>%
   mutate(Lagerort.des.Artikels = case_when(Lagerort.des.Artikels == 'KELL' ~ 'KEL',
                                            TRUE ~ Lagerort.des.Artikels),
@@ -116,18 +116,20 @@ data_prep <- data2 %>%
          Doppelplatzierung = case_when(!is.na(Lagerort.des.Artikels) & !is.na(Lagerort.2.des.Artikels) & 
                                          !Lagerort.2.des.Artikels %in% c('KEL', 'ZL') ~ 'ja',
                                        TRUE ~ 'nein'),
-         Selbstwahl = case_when(Swissmedic.Kategorie %in% c('C', 'D') ~ 'nein',
+         Selbstwahl = case_when(Swissmedic.Kategorie %in% c('A', 'B', 'C', 'D') ~ 'nein',
                                 TRUE ~ 'ja'),
          Ausstellen = case_when(Zahlungscode == 1 ~ 'nein',
                                 TRUE ~ 'ja'),
-         Relevant = case_when(Ausstellen == 'ja' & Selbstwahl == 'ja' & Verkaufsart == 'Bar' ~ 'ja',
+         Relevant = case_when(Ausstellen == 'ja' & Selbstwahl == 'ja' & Verkaufsart == 'Bar' | 
+                                tpd_col %in% c("TPD", "H21") ~ 'ja',
                               TRUE ~ 'nein')) %>%
   drop_na(Pharmacode) %>%
   filter(Jahr %in% c(2021, 2022, 2023))
 
 # Monatsauswertung Verkaufszahlen
 data_month_sum <- data_prep %>%
-  group_by(Jahr, Monat, Pharmacode, Artikelbezeichnung, Code, Verkaufsart, Relevant) %>%
+  group_by(Jahr, Monat, Pharmacode, Artikelbezeichnung, Code, Verkaufsart, Relevant, 
+           Lagerort.2.des.Artikels) %>%
   summarise_at(vars(Kumulierte_Absolute_Marge, Anzahl.Packungen, Umsatz), sum, na.rm = T) %>%
   rename(Packungen = Anzahl.Packungen)
   
@@ -145,16 +147,21 @@ data_tot_sum <- data_prep %>%
 
 # Angaben pro Produkt einmalig heraussuchen
 data_allg_ang <- data_prep %>%
-  distinct(Jahr, Artikelbezeichnung, Pharmacode, Relevant, Doppelplatzierung, Selbstwahl, Ausstellen, `EAN-Code`,
-           Marge, Verkaufspreis, Lagerpreis, Marge_perc, Lagerort.des.Artikels, Lagerort.2.des.Artikels, Verkaufsart, Relevant) %>%
+  distinct(Jahr, Artikelbezeichnung, Pharmacode, Relevant, Doppelplatzierung, 
+           Selbstwahl, Ausstellen, `EAN-Code`, Marge, Verkaufspreis, Lagerpreis, 
+           Marge_perc, Lagerort.des.Artikels, Lagerort.2.des.Artikels, 
+           Verkaufsart, Relevant, Swissmedic.Kategorie) %>%
   rename(Marge_Prozent = Marge_perc, Absolute_Marge = Marge)
 
 # Verkaufszahlen pro Monat inkl. Allg. Angaben
 monatsauswertung <- data_allg_ang %>%
-  left_join(data_month_sum, by = c('Pharmacode', 'Jahr', 'Artikelbezeichnung', 'Verkaufsart', 'Relevant')) %>%
+  left_join(data_month_sum, by = c('Pharmacode', 'Jahr', 'Artikelbezeichnung', 
+                                   'Verkaufsart', 'Relevant', 'Lagerort.2.des.Artikels')) %>%
   select(Jahr, Monat, Pharmacode,`EAN-Code`, Artikelbezeichnung, Relevant, 
-         Verkaufspreis, Lagerpreis, Marge_Prozent, Absolute_Marge, Packungen, Umsatz, Kumulierte_Absolute_Marge, 
-         Lagerort.des.Artikels, Lagerort.2.des.Artikels, Code, Verkaufsart, Doppelplatzierung, Selbstwahl, Ausstellen) %>%
+         Verkaufspreis, Lagerpreis, Marge_Prozent, Absolute_Marge, Packungen, 
+         Umsatz, Kumulierte_Absolute_Marge, Lagerort.des.Artikels, 
+         Lagerort.2.des.Artikels, Code, Verkaufsart, Doppelplatzierung, 
+         Selbstwahl, Ausstellen, Swissmedic.Kategorie) %>%
   left_join(sortimentscode_full, by = 'Code') %>%
   left_join(masse_cm, by = 'Pharmacode') %>%
   left_join(tops, by = c('Pharmacode', 'Jahr')) %>%
@@ -162,7 +169,8 @@ monatsauswertung <- data_allg_ang %>%
                                TRUE ~ Topseller)) %>%
   drop_na(Artikelbezeichnung) %>%
   select(-Code) %>%
-  mutate(Marke = word(Artikelbezeichnung,1))
+  mutate(Marke = word(Artikelbezeichnung,1)) %>% 
+  mutate_all(~str_replace_all(.x, '"', ''))
 
 # Verkaufszahlen pro Jahr inkl. Allg. Angaben
 jahresauswertung <- data_allg_ang %>%
@@ -209,6 +217,8 @@ write.xlsx(jahresauswertung, file = paste0(dat_path, 'Jahresauswertung.xlsx'), s
             colNames = T, rowNames = F)
 write.xlsx(monatsauswertung, file = paste0(dat_path, 'Monatsauswertung.xlsx'), sep = ';',
             colNames = T, rowNames = F)
+
+
 write.table(monatsauswertung, file = paste0(dat_path, 'Monatsauswertung.csv'), sep = ';',
             row.names = FALSE, col.names = TRUE, fileEncoding = "latin1")
 

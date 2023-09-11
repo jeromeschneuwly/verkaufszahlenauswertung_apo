@@ -11,7 +11,7 @@ options(scipen = 999)
 zentrum_path <- "C:/Analyse_Apotheke/Zentrum_Auswertung/"
 glatt_path <- "C:/Analyse_Apotheke/Glatt_Auswertung/"
 
-mapping_kat5 <- read.xlsx("C:/Analyse_Apotheke/Kategorie_5.xlsx", colNames = T, rowNames = F,
+mapping_kat5 <- read.xlsx("C:/Analyse_Apotheke/verkaufszahlenauswertung_apo/Kategorie_5.xlsx", colNames = T, rowNames = F,
                           na.strings = c('', ' '), detectDates = T)
 
 mapping_kat5_clean <- mapping_kat5 %>% 
