@@ -24,8 +24,7 @@ server <- function(input, output) {
     date_1 <- input$dateRange[1]
     date_2 <- input$dateRange[2]
     data_prep <- data_raw() %>%
-      left_join(mapping_kat5_clean_no_change, by = c("Pharmacode")) %>% 
-      left_join(mapping_kat5_changed, by = c("Pharmacode", "Jahr")) %>%
+      left_join(mapping_full, by = c("Pharmacode", "Jahr")) %>%
       mutate(Datum = as.Date(paste('1-', Monat, '-', Jahr, sep=''), "%d-%m-%Y"),
              Zeitraum = case_when(Datum < date_2 & Datum >= date_1 ~ 
                                     plot_levels()[2],
@@ -33,7 +32,6 @@ server <- function(input, output) {
                                     plot_levels()[1],
                                   Datum < date_1-365 ~ "vorher",
                                   TRUE ~ 'nachher'),
-             Kategorie_5 = coalesce(Kategorie_5_stable, Kategorie_5_changed),
              Kategorie_6 = paste(Marke, Kategorie_5, sep = "_"))
     return(data_prep)
   })
@@ -139,6 +137,9 @@ server <- function(input, output) {
         labs(y = input$varselection, title = input$Bezeichnung)
     }
   })
+  
+  
+  
   
   output$monatsplot <- renderPlot({
     monthplot <- apodata_filtered() %>% 

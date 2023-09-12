@@ -226,3 +226,9 @@ write.table(monatsauswertung, file = paste0(dat_path, 'Monatsauswertung.csv'), s
 aendert <- data_prep %>%
   distinct(Artikelbezeichnung, Pharmacode, Zahlungscode) %>%
   count(Artikelbezeichnung, Zahlungscode)
+
+dienstleistungen <- data_prep %>% 
+  filter(tpd_col %in% c('TPD', 'H21')) %>% 
+  distinct(Pharmacode, Jahr)
+write.table(dienstleistungen, file = paste0(dat_path, 'dienstleistungen_pharmacode.csv'), sep = ';',
+            row.names = FALSE, col.names = TRUE, fileEncoding = "latin1")
