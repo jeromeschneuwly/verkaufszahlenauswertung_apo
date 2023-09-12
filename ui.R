@@ -26,8 +26,8 @@ ui <- fluidPage(
       
       conditionalPanel(condition = "input.conditionedPanels == 3",
                        selectInput("filterselection", "Filter wählen:", 
-                                   choices = c("Marge (<28%)" = "Marge_Prozent", "Auswertungsrelevante Produkte" = "Relevant", 
-                                               "Verkaufsart" = "Verkaufsart", 
+                                   choices = c("Marge (<28%)" = "Marge_Prozent", 
+                                               "Auswertungsrelevante Produkte" = "Relevant", 
                                                "Selbstwahl" = "Selbstwahl", "Topseller" = "Topseller"), 
                                    selectize = FALSE, selected = "Relevant")),
       
@@ -47,15 +47,17 @@ ui <- fluidPage(
     ),
     mainPanel(
       tabsetPanel(
-        tabPanel("Einzelauswertung", id = "produkte", value = 1,
+        tabPanel("Einzelauswertung", id = "produkte", value = 1, br(),
                  plotOutput("zeitraumplot"),
+                 br(),
                  tableOutput("einzeltable")
         ),
-        tabPanel("Monatsauswertung", id = "monthplot", value = 2,
+        tabPanel("Monatsauswertung", id = "monthplot", value = 2, br(),
                  plotOutput("monatsplot")
         ),
-        tabPanel("Gesamtauswertung", id = "gesamt", value = 3,
+        tabPanel("Gesamtauswertung", id = "gesamt", value = 3, br(),
                  plotOutput("gesamtauswertung"),
+                 br(),
                  tableOutput("totaltable")
         ),
         id = "conditionedPanels"

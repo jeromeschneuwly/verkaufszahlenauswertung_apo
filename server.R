@@ -10,6 +10,18 @@ server <- function(input, output) {
     return(levelsplot)
   })
 
+  plot_y_label <- reactive({
+    y_lab <- vector()
+    if(input$varselection == "Kumulierte_Absolute_Marge") {
+      y_lab <- "Gewinn (CHF)"
+    } else if(input$varselection == "Umsatz") {
+      y_lab <- "Umsatz (CHF)"
+    } else {
+      y_lab <- "Packungen (Stk.)"
+    }
+  })
+  
+  
   data_raw <- reactive({
     dataset <- if(input$apotheke == "Zentrum") {
       read.delim(paste0(zentrum_path, "Monatsauswertung_alle_Produkte_2023.csv"),
@@ -107,10 +119,12 @@ server <- function(input, output) {
   })
   
   output$einzeltable <- renderTable({
-    table_data()
+    tab <- table_data()
+    colnames(tab)[2] <- plot_y_label()
+    tab
   })
-    
-    
+  
+  
   output$zeitraumplot <- renderPlot({
     if(!is.null(apo_data_agg()) && nrow(apo_data_agg()>0)) {
       plot_data <- apo_data_agg()
@@ -127,14 +141,16 @@ server <- function(input, output) {
 
       ggplot(plot_data, aes(x = plot_data[[1]], y = plot_data[[2]], fill = plot_data[[1]])) +
         geom_bar(stat = "identity", position = position_dodge2(width = 0.5, preserve = "single")) +
-        theme_bw() +
+        theme_classic() +
+        scale_fill_brewer(palette = "Dark2") +
         theme(axis.title.x = element_blank(),
               axis.text.x = element_text(size = 22),
               axis.text.y = element_text(size = 22),
               plot.title = element_text(size = 22),
               axis.title.y = element_text(size = 22),
-              legend.position = "none") +
-        labs(y = input$varselection, title = input$Bezeichnung)
+              legend.position = "none",
+              axis.ticks.x = element_blank()) +
+        labs(y = plot_y_label(), title = input$Bezeichnung)
     }
   })
   
@@ -151,19 +167,22 @@ server <- function(input, output) {
       
     ggplot(monthplot, aes(x = Monat, y = monthplot[[3]], fill = Jahr, group = Monat)) +
       geom_bar(stat = "identity", position = position_dodge2(width = 0.5, preserve = "single")) +
-      theme_bw() +
+      theme_classic() +
+      scale_fill_brewer(palette = "Dark2") +
       theme(axis.title.x = element_text(size = 22),
             axis.text.x = element_text(size = 22),
             axis.text.y = element_text(size = 22),
             plot.title = element_text(size = 22),
             axis.title.y = element_text(size = 22),
             legend.position = "bottom",
-            legend.text = element_text(size = 22)) +
-      labs(y = input$varselection, title = input$Bezeichnung)
+            legend.text = element_text(size = 22),
+            legend.title = element_blank(),
+            axis.ticks.x = element_blank()) +
+      labs(y = plot_y_label(), title = input$Bezeichnung)
   })
   
   apo_data_total_agg <- reactive({
-    predata <- apodata()
+    predata <- apodata_filtered()
     
     if(input$filterselection == "Relevant") {
       data_filtered <- predata %>% 
@@ -171,9 +190,6 @@ server <- function(input, output) {
     } else if(input$filterselection == "Marge_Prozent") {
       data_filtered <- predata %>% 
         filter(Marge_Prozent < 28 & Verkaufsart != 'Kredit')
-    } else if(input$filterselection == "Verkaufsart") {
-      data_filtered <- predata %>% 
-        filter(Verkaufsart == 'Bar')
     } else if (input$filterselection == "Selbstwahl") {
       data_filtered <- predata %>% 
         filter(Selbstwahl == 'ja' & Verkaufsart != 'Kredit')
@@ -195,8 +211,33 @@ server <- function(input, output) {
       return(data_agg)
   })
   
+  
+  gesamt_table_data <- reactive({
+    data_diff <- apo_data_total_agg()
+    if(input$timeaggregation == 'Zeitraum') {
+      data_diff <- data_diff %>% 
+        filter(!Zeitraum %in% c("vorher", "nachher"))
+    }
+    total_diff <- vector()
+    diff <- vector()  # Create a diff variable before the loop
+    for(i in 0:nrow(data_diff)) {
+      if(i == 0) {
+        diff[i+1] <- NA_real_
+      } else {
+        diff[i+1] <- as.numeric(100/data_diff[i, 2]*data_diff[i+1,2]-100)
+      }
+      total_diff <- c(total_diff, diff[i])
+    }
+    data_diff <- data_diff %>% 
+      mutate(`Veränderung (%)` = total_diff)
+    return(data_diff)
+  })
+  
+  
   output$totaltable <- renderTable({
-    apo_data_total_agg()
+    tab <- gesamt_table_data()
+    colnames(tab)[2] <- plot_y_label()
+    tab
   })
   
   output$gesamtauswertung <- renderPlot({
@@ -215,14 +256,16 @@ server <- function(input, output) {
     ggplot(plot_data, aes(x = plot_data[[1]], y = plot_data[[2]], 
                            fill = plot_data[[1]], group = plot_data[[1]])) +
       geom_bar(stat = "identity", position = position_dodge2(width = 0.5, preserve = "single")) +
-      theme_bw() +
+      theme_classic() +
+      scale_fill_brewer(palette = "Dark2") +
       theme(axis.title.x = element_blank(),
             axis.text.x = element_text(size = 22),
             axis.text.y = element_text(size = 22),
             plot.title = element_text(size = 22),
             axis.title.y = element_text(size = 22),
-            legend.position = "none") +
-      labs(y = input$varselection)
+            legend.position = "none",
+            axis.ticks.x = element_blank()) +
+      labs(y = plot_y_label())
     }
   })
 }
