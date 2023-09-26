@@ -24,10 +24,14 @@ server <- function(input, output) {
   
   data_raw <- reactive({
     dataset <- if(input$apotheke == "Zentrum") {
-      read.delim(paste0(zentrum_path, "Monatsauswertung_alle_Produkte_2023.csv"),
+      # read.delim(paste0(zentrum_path, "Monatsauswertung_alle_Produkte_2023.csv"),
+      #                   sep = ';', fileEncoding = 'latin1')
+      read.delim("./Monatsauswertung_alle_Produkte_2023.csv",
                         sep = ';', fileEncoding = 'latin1')
     } else {
-      read.delim(paste0(glatt_path, "Monatsauswertung_2023.csv"),
+      # read.delim(paste0(glatt_path, "Monatsauswertung_2023.csv"),
+      #                   sep = ';', fileEncoding = 'latin1')
+      read.delim("./Monatsauswertung_2023.csv",
                         sep = ';', fileEncoding = 'latin1')
     }
   })
