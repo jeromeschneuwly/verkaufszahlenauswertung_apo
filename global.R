@@ -8,6 +8,7 @@ library(shinycssloaders)
 library(ggplot2)
 library(janitor)
 library(RColorBrewer)
+library(scales)
 options(scipen = 999)
 # zentrum_path <- "C:/Analyse_Apotheke/Zentrum_Auswertung/"
 # glatt_path <- "C:/Analyse_Apotheke/Glatt_Auswertung/"
@@ -42,9 +43,11 @@ mapping_full <- mapping_expanded %>%
   select(-kat_old) %>% 
   ungroup()
 
-
-
-
+# Function to format labels with apostrophe as thousand separator
+format_with_apostrophe <- function(x) {
+  formatted <- format(x, big.mark = "'", scientific = FALSE)
+  return(formatted)
+}
 # mapping_kat5_clean <- mapping_kat5 %>% 
 #   distinct(Pharmacode, Kategorie_5) %>% 
 #   anti_join(dienstleistungen, by = "Pharmacode")

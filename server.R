@@ -102,6 +102,7 @@ server <- function(input, output) {
   
   
   table_data <- reactive({
+    data_diff_tot <- data.frame()
     data_diff <- apo_data_agg()
     if(input$timeaggregation == 'Zeitraum') {
       data_diff <- data_diff %>% 
@@ -109,21 +110,30 @@ server <- function(input, output) {
     }
     total_diff <- vector()
     diff <- vector()  # Create a diff variable before the loop
+    diff_chf <- vector()
+    total_diff_chf <- vector()
     for(i in 0:nrow(data_diff)) {
       if(i == 0) {
         diff[i+1] <- NA_real_
+        diff_chf[i+1] <- NA_real_
       } else {
         diff[i+1] <- as.numeric(100/data_diff[i, 2]*data_diff[i+1,2]-100)
+        diff_chf[i+1] <- as.numeric(data_diff[i+1,2]-data_diff[i, 2])
       }
       total_diff <- c(total_diff, diff[i])
+      total_diff_chf <- c(total_diff_chf, diff_chf[i])
     }
     data_diff <- data_diff %>% 
-      mutate(`Veränderung (%)` = total_diff)
+      mutate(`Veränderung (%)` = total_diff,
+             `Veränderung (CHF)` = total_diff_chf)
+    
     return(data_diff)
   })
   
   output$einzeltable <- renderTable({
     tab <- table_data()
+    tab[2] <- round(tab[2], digits = 0)
+    tab[[2]] <- sapply(tab[[2]], format_with_apostrophe)
     colnames(tab)[2] <- plot_y_label()
     tab
   })
@@ -142,11 +152,12 @@ server <- function(input, output) {
         plot_data$Zeitraum <- factor(plot_data$Zeitraum, 
                                      levels = c(time1, time2))
       }
-
+      plot_data[[2]] <- round(plot_data[[2]], digits = 0)
       ggplot(plot_data, aes(x = plot_data[[1]], y = plot_data[[2]], fill = plot_data[[1]])) +
         geom_bar(stat = "identity", position = position_dodge2(width = 0.5, preserve = "single")) +
         theme_classic() +
         scale_fill_brewer(palette = "Dark2") +
+        scale_y_continuous(labels = function(x) format(x, big.mark = "'")) +
         theme(axis.title.x = element_blank(),
               axis.text.x = element_text(size = 22),
               axis.text.y = element_text(size = 22),
@@ -173,6 +184,7 @@ server <- function(input, output) {
       geom_bar(stat = "identity", position = position_dodge2(width = 0.5, preserve = "single")) +
       theme_classic() +
       scale_fill_brewer(palette = "Dark2") +
+      scale_y_continuous(labels = function(x) format(x, big.mark = "'")) +
       theme(axis.title.x = element_text(size = 22),
             axis.text.x = element_text(size = 22),
             axis.text.y = element_text(size = 22),
@@ -234,12 +246,14 @@ server <- function(input, output) {
     }
     data_diff <- data_diff %>% 
       mutate(`Veränderung (%)` = total_diff)
+    data_diff[[2]] <- round(data_diff[[2]], digits = 0)
     return(data_diff)
   })
   
   
   output$totaltable <- renderTable({
     tab <- gesamt_table_data()
+    tab[[2]] <- sapply(tab[[2]], format_with_apostrophe)
     colnames(tab)[2] <- plot_y_label()
     tab
   })
@@ -262,6 +276,7 @@ server <- function(input, output) {
       geom_bar(stat = "identity", position = position_dodge2(width = 0.5, preserve = "single")) +
       theme_classic() +
       scale_fill_brewer(palette = "Dark2") +
+      scale_y_continuous(labels = function(x) format(x, big.mark = "'")) +
       theme(axis.title.x = element_blank(),
             axis.text.x = element_text(size = 22),
             axis.text.y = element_text(size = 22),

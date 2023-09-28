@@ -7,8 +7,8 @@ ui <- fluidPage(
       conditionalPanel(condition = "input.conditionedPanels != 3",
                        prettyRadioButtons("colselection", "Typ auswählen:", 
                                           choices = c("Produkt" = "Artikelbezeichnung", 
-                                                      "Kategorie 5" = "Kategorie_5",
-                                                      "Kategorie 6" = "Kategorie_6",
+                                                      "Hauptkategorie" = "Kategorie_5",
+                                                      "Marke & Kategorie" = "Kategorie_6",
                                                       "Marke" = "Marke"), 
                                           selected = "Artikelbezeichnung", shape = "round")),
       
