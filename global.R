@@ -10,15 +10,8 @@ library(janitor)
 library(RColorBrewer)
 library(scales)
 options(scipen = 999)
-# zentrum_path <- "C:/Analyse_Apotheke/Zentrum_Auswertung/"
-# glatt_path <- "C:/Analyse_Apotheke/Glatt_Auswertung/"
-#zentrum_path <- "C:/Analyse_Apotheke/verkaufszahlenauswertung_apo/"
-
 mapping_kat5 <- read.xlsx("./Kategorie_5.xlsx", colNames = T, rowNames = F,
                           na.strings = c('', ' '), detectDates = T)
-
-# dienstleistungen <- mapping_kat5 %>% filter(Kategorie_5 == 'Dienstleistungen') %>% 
-#   distinct(Jahr, Pharmacode) 
 
 mapping_kat5 <- mapping_kat5 %>% 
   distinct()
@@ -48,32 +41,3 @@ format_with_apostrophe <- function(x) {
   formatted <- format(x, big.mark = "'", scientific = FALSE)
   return(formatted)
 }
-# mapping_kat5_clean <- mapping_kat5 %>% 
-#   distinct(Pharmacode, Kategorie_5) %>% 
-#   anti_join(dienstleistungen, by = "Pharmacode")
-# 
-# kat_changed <- mapping_kat5_clean %>% 
-#   anti_join(dienstleistungen, by = "Pharmacode") %>% 
-#   get_dupes(Pharmacode)
-# 
-# 
-# 
-# mapping_kat5_clean_no_change <- mapping_kat5_clean %>% 
-#   filter(!Pharmacode %in% kat_changed$Pharmacode) %>% 
-#   rename(Kategorie_5_stable = Kategorie_5)
-# 
-# mapping_kat5_changed <- mapping_kat5 %>% 
-#   filter(Pharmacode %in% kat_changed$Pharmacode) %>% 
-#   distinct(Jahr, Pharmacode, Kategorie_5) %>% 
-#   rename(Kategorie_5_changed = Kategorie_5)
-# 
-# kat_changed_add_23 <- expand(mapping_kat5_changed, Pharmacode, Jahr)
-# 
-# mapping_kat5_changed_full <- mapping_kat5_changed %>% 
-#   full_join(kat_changed_add_23, by = c("Pharmacode", "Jahr")) %>% 
-#   arrange(Jahr) %>%
-#   group_by(Pharmacode) %>% 
-#   fill(Kategorie_5_changed, .direction = "downup")
-# 
-# mapping_kat5_changed_all <- rbind(mapping_kat5_changed_full, dienstleistungen %>% 
-#                                 mutate(Kategorie_5_changed = "Dienstleistungen"))

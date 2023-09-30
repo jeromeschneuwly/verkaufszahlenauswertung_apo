@@ -11,24 +11,17 @@ ui <- fluidPage(
                                                       "Marke & Kategorie" = "Kategorie_6",
                                                       "Marke" = "Marke"), 
                                           selected = "Artikelbezeichnung", shape = "round")),
-      
-      prettyRadioButtons("timeaggregation", "Vergleichszeitraum wählen:", 
-                         choices = c("Jahr" = "Jahr",
-                                     "Auswertungszeitraum" = "Zeitraum"), 
-                         selected = "Jahr", shape = "round"),
+      dateRangeInput('dateRange',label = "Auswertungszeitraum:", format = "dd.mm.yyyy", 
+                     language = "de", start = "2022-09-01", end = "2023-08-31",
+                     startview = "year", separator = " - "),
 
-      conditionalPanel(
-        "input.timeaggregation == 'Zeitraum'",
-        dateRangeInput('dateRange',label = "Zeitraum:", format = "dd.mm.yyyy", 
-                       language = "de", start = "2022-09-01", end = "2023-08-31",
-                       startview = "year", separator = " - ")
-      ),
-      
       conditionalPanel(condition = "input.conditionedPanels == 3",
                        selectInput("filterselection", "Filter wählen:", 
-                                   choices = c("Marge (<28%)" = "Marge_Prozent", 
+                                   choices = c("Alle Produkte" = "Alle",
+                                               "Marge (<28%)" = "Marge_Prozent", 
                                                "Auswertungsrelevante Produkte" = "Relevant", 
-                                               "Selbstwahl" = "Selbstwahl", "Topseller" = "Topseller"), 
+                                               "Selbstwahl" = "Selbstwahl", 
+                                               "Topseller" = "Topseller"), 
                                    selectize = FALSE, selected = "Relevant")),
       
       selectInput("saleselection", "Verkaufsarten wählen:", 
