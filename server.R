@@ -1,6 +1,9 @@
 
 server <- function(input, output) {
-  
+res_auth <- secure_server(
+  check_credentials = check_credentials(credentials)
+)
+#auth0_server(function(input, output, session) {
   plot_levels <- reactive({
     date_1 <- as.Date(input$dateRange[1])
     date_2 <- as.Date(input$dateRange[2])

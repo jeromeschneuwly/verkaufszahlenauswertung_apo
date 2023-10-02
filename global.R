@@ -9,6 +9,8 @@ library(ggplot2)
 library(janitor)
 library(RColorBrewer)
 library(scales)
+library(shinymanager)
+source("credentials.R")
 options(scipen = 999)
 mapping_kat5 <- read.xlsx("./Kategorie_5.xlsx", colNames = T, rowNames = F,
                           na.strings = c('', ' '), detectDates = T)
