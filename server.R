@@ -1,8 +1,8 @@
 
 server <- function(input, output) {
-res_auth <- secure_server(
-  check_credentials = check_credentials(credentials)
-)
+# res_auth <- secure_server(
+#   check_credentials = check_credentials(credentials)
+# )
 #auth0_server(function(input, output, session) {
   plot_levels <- reactive({
     date_1 <- as.Date(input$dateRange[1])
@@ -25,11 +25,11 @@ res_auth <- secure_server(
   })
   
   data_raw <- reactive({
-    dataset <- if(input$apotheke == "Zentrum") {
+    dataset <- if(input$apotheke == "Z") {
       read.delim("./Monatsauswertung_alle_Produkte_2023.csv",
                         sep = ';', fileEncoding = 'latin1')
     } else {
-      read.delim("./Monatsauswertung_2023.csv",
+      read.delim("./Monatsauswertung_alle_Produkte_2023_2.csv",
                         sep = ';', fileEncoding = 'latin1')
     }
   })
@@ -38,6 +38,7 @@ res_auth <- secure_server(
     date_1 <- input$dateRange[1]
     date_2 <- input$dateRange[2]
     data_prep <- data_raw() %>%
+      filter(!is.na(Lagerort.des.Artikels)) %>% 
       left_join(mapping_full, by = c("Pharmacode", "Jahr")) %>%
       mutate(Datum = as.Date(paste('1-', Monat, '-', Jahr, sep=''), "%d-%m-%Y"),
              Zeitraum = case_when(Datum < date_2 & Datum >= date_1 ~ 
@@ -251,3 +252,4 @@ res_auth <- secure_server(
     }
   })
 }
+#)

@@ -4,7 +4,7 @@ library(openxlsx)
 library(stringr)
 library(gdata)
 dat_path <- "C:/Analyse_Apotheke/"
-list_files <- list.files("C:/Analyse_Apotheke/Verkaeufe/Zentrum/", pattern = ".xlsx")
+list_files <- list.files("C:/Analyse_Apotheke/Verkaeufe/", pattern = ".xlsx")
 options(scipen = 999)
 
 artikel_raus <- c('METHADON-PAUSCHALE', 'SARS', 'Masken')
@@ -12,7 +12,7 @@ artikel_raus <- c('METHADON-PAUSCHALE', 'SARS', 'Masken')
 data <- data.frame()
 for (i in list_files) {
   print(i)
-  data_sem <- read.xlsx(paste0("C:/Analyse_Apotheke/Verkaeufe/Zentrum/", i), 
+  data_sem <- read.xlsx(paste0("C:/Analyse_Apotheke/Verkaeufe/", i), 
                         colNames = TRUE, rowNames = FALSE,
                     na.strings = c('', ' '), detectDates = TRUE)
   
@@ -147,7 +147,7 @@ data_tot_sum <- data_prep %>%
 
 # Angaben pro Produkt einmalig heraussuchen
 data_allg_ang <- data_prep %>%
-  distinct(Jahr, Artikelbezeichnung, Pharmacode, Relevant, Doppelplatzierung, 
+  distinct(Jahr, Monat, Artikelbezeichnung, Pharmacode, Relevant, Doppelplatzierung, 
            Selbstwahl, Ausstellen, `EAN-Code`, Marge, Verkaufspreis, Lagerpreis, 
            Marge_perc, Lagerort.des.Artikels, Lagerort.2.des.Artikels, 
            Verkaufsart, Relevant, Swissmedic.Kategorie) %>%
@@ -155,7 +155,7 @@ data_allg_ang <- data_prep %>%
 
 # Verkaufszahlen pro Monat inkl. Allg. Angaben
 monatsauswertung <- data_allg_ang %>%
-  left_join(data_month_sum, by = c('Pharmacode', 'Jahr', 'Artikelbezeichnung', 
+  left_join(data_month_sum, by = c('Pharmacode', 'Jahr', 'Monat', 'Artikelbezeichnung', 
                                    'Verkaufsart', 'Relevant', 'Lagerort.2.des.Artikels')) %>%
   select(Jahr, Monat, Pharmacode,`EAN-Code`, Artikelbezeichnung, Relevant, 
          Verkaufspreis, Lagerpreis, Marge_Prozent, Absolute_Marge, Packungen, 

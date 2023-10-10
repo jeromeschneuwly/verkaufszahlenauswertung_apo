@@ -1,15 +1,15 @@
 
 ui <- fluidPage(
-  tags$h2("My secure application"),
-  verbatimTextOutput("auth_output")
-)
+#   tags$h2("My secure application"),
+#   verbatimTextOutput("auth_output")
+# )
 # 
-ui <- secure_app(
+#ui <- secure_app(
 #auth0_ui(fluidPage(
- # logoutButton(
+# logoutButton(
     sidebarLayout(
       sidebarPanel(
-        selectInput("apotheke", "Apotheke auswählen", c("Zentrum", "Glattpark")),
+        selectInput("apotheke", "Apotheke auswählen", c("Z", "G")),
         
         conditionalPanel(condition = "input.conditionedPanels != 3",
                          prettyRadioButtons("colselection", "Typ auswählen:", 
@@ -67,6 +67,6 @@ ui <- secure_app(
       )
     )
     
-  #)
+#  )
 #)
 )

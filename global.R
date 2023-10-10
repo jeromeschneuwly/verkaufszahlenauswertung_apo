@@ -9,9 +9,11 @@ library(ggplot2)
 library(janitor)
 library(RColorBrewer)
 library(scales)
-library(shinymanager)
-source("credentials.R")
+library(auth0)
+# library(shinymanager)
+# source("credentials.R")
 options(scipen = 999)
+options(shiny.port = 8080)
 mapping_kat5 <- read.xlsx("./Kategorie_5.xlsx", colNames = T, rowNames = F,
                           na.strings = c('', ' '), detectDates = T)
 
@@ -37,6 +39,8 @@ mapping_full <- mapping_expanded %>%
   fill(Kategorie_5, .direction = "downup") %>% 
   select(-kat_old) %>% 
   ungroup()
+
+
 
 # Function to format labels with apostrophe as thousand separator
 format_with_apostrophe <- function(x) {
