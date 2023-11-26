@@ -1,0 +1,13 @@
+name: verkaufszahlenauswertung_apo
+title:
+username: pharmtastic-verkaufsdaten
+account: pharmtastic-verkaufsdaten
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 9997091
+bundleId: 7786895
+url: https://pharmtastic-verkaufsdaten.shinyapps.io/verkaufszahlenauswertung_apo/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: _auth0.yml|credentials.R|Neue_Produkte_identifizieren.R|Preisauswertung_Apo.R

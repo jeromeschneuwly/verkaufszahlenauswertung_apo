@@ -38,7 +38,8 @@ server <- function(input, output) {
     date_1 <- input$dateRange[1]
     date_2 <- input$dateRange[2]
     data_prep <- data_raw() %>%
-      filter(!Pharmacode %in% c(10016054, 7816252, 10015237, 10015202)) %>% 
+      filter(!Pharmacode %in% c(10016054, 7816252, 10015237, 10015202) & 
+             !is.na(Lagerort.des.Artikels)) %>% 
       left_join(mapping_full, by = c("Pharmacode", "Jahr")) %>%
       mutate(Datum = as.Date(paste('1-', Monat, '-', Jahr, sep=''), "%d-%m-%Y"),
              Zeitraum = case_when(Datum < date_2 & Datum >= date_1 ~ 
@@ -82,12 +83,15 @@ server <- function(input, output) {
   apo_data_agg <- reactive({
     if(!is.null(input$colselection) && input$colselection != "" && 
        !is.null(input$Bezeichnung) && input$Bezeichnung != "") {
-      if(input$Bezeichnung == 'Dienstleistungen') {
-        predata <- apodata_filtered()
-      } else {
-        predata <- apodata_filtered() %>% 
-          filter(!is.na(Lagerort.des.Artikels))
-      }
+      predata <- apodata_filtered()
+      # 
+      # 
+      # if(input$Bezeichnung == 'Dienstleistungen') {
+      #   predata <- apodata_filtered()
+      # } else {
+      #   predata <- apodata_filtered() %>% 
+      #     filter(!is.na(Lagerort.des.Artikels))
+      # }
         data_agg <- predata %>%
           dplyr::filter(.data[[input$colselection]] == input$Bezeichnung) %>% 
           group_by(Zeitraum) %>% 
@@ -179,12 +183,13 @@ server <- function(input, output) {
   })
   
   apo_data_total_agg <- reactive({
-    if(input$filterselection != "Marge_Prozent") {
-      predata <- apodata_filtered() %>% 
-        filter(!is.na(Lagerort.des.Artikels))
-    } else {
-      predata <- apodata_filtered()
-    }
+    # if(input$filterselection != "Marge_Prozent") {
+    #   predata <- apodata_filtered() %>% 
+    #     filter(!is.na(Lagerort.des.Artikels))
+    # } else {
+    #   predata <- apodata_filtered()
+    # }
+    predata <- apodata_filtered()
     
     if (input$filterselection == "Alle") {
       data_filtered <- predata

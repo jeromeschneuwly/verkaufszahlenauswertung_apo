@@ -4,7 +4,7 @@ library(openxlsx)
 library(stringr)
 library(gdata)
 dat_path <- "C:/Analyse_Apotheke/"
-list_files <- list.files("C:/Analyse_Apotheke/Verkaeufe/", pattern = ".xlsx")
+list_files <- list.files("C:/Analyse_Apotheke/Verkaeufe/Zentrum/", pattern = ".xlsx")
 options(scipen = 999)
 
 artikel_raus <- c('METHADON-PAUSCHALE', 'SARS', 'Masken')
@@ -12,7 +12,7 @@ artikel_raus <- c('METHADON-PAUSCHALE', 'SARS', 'Masken')
 data <- data.frame()
 for (i in list_files) {
   print(i)
-  data_sem <- read.xlsx(paste0("C:/Analyse_Apotheke/Verkaeufe/", i), 
+  data_sem <- read.xlsx(paste0("C:/Analyse_Apotheke/Verkaeufe/Zentrum/", i), 
                         colNames = TRUE, rowNames = FALSE,
                     na.strings = c('', ' '), detectDates = TRUE)
   
