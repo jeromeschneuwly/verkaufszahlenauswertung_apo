@@ -1,9 +1,5 @@
 
 server <- function(input, output) {
-# res_auth <- secure_server(
-#   check_credentials = check_credentials(credentials)
-# )
-#auth0_server(function(input, output, session) {
   plot_levels <- reactive({
     date_1 <- as.Date(input$dateRange[1])
     date_2 <- as.Date(input$dateRange[2])
@@ -38,9 +34,11 @@ server <- function(input, output) {
     date_1 <- input$dateRange[1]
     date_2 <- input$dateRange[2]
     data_prep <- data_raw() %>%
-      filter(!Pharmacode %in% c(10016054, 7816252, 10015237, 10015202) & 
-             !is.na(Lagerort.des.Artikels)) %>% 
+      filter(!Pharmacode %in% c(10016054, 7816252, 10015237, 10015202)) %>% # ohne Corona
+      # filter(!Pharmacode %in% c(10016054, 7816252, 10015237, 10015202) & 
+      #        !is.na(Lagerort.des.Artikels)) %>% 
       left_join(mapping_full, by = c("Pharmacode", "Jahr")) %>%
+      left_join(dienstleistungen, by = c("Pharmacode", "Jahr")) %>% 
       mutate(Datum = as.Date(paste('1-', Monat, '-', Jahr, sep=''), "%d-%m-%Y"),
              Zeitraum = case_when(Datum < date_2 & Datum >= date_1 ~ 
                                     plot_levels()[2],
@@ -205,6 +203,9 @@ server <- function(input, output) {
     } else if (input$filterselection == "Topseller") {
       data_filtered <- predata %>% 
         filter(Topseller == 'ja' & Verkaufsart != 'Kredit')
+    } else if (input$filterselection == "Dienstleistungen") {
+      data_filtered <- predata %>% 
+        filter(dienstleistung == 'ja')
     }
     data_agg <- data_filtered %>%
       group_by(Zeitraum) %>% 
@@ -268,4 +269,3 @@ server <- function(input, output) {
     }
   })
 }
-#)

@@ -9,13 +9,14 @@ library(ggplot2)
 library(janitor)
 library(RColorBrewer)
 library(scales)
-#library(auth0)
-# library(shinymanager)
-# source("credentials.R")
 options(scipen = 999)
-#options(shiny.port = 8080)
 mapping_kat5 <- read.xlsx("./Kategorie_5.xlsx", colNames = T, rowNames = F,
                           na.strings = c('', ' '), detectDates = T)
+
+dienstleistungen <- read.csv("./dienstleistungen_pharmacode.csv", sep = ";",
+                               fileEncoding = "latin1", header = TRUE) %>% 
+  mutate(dienstleistung = "ja")
+
 
 mapping_kat5 <- mapping_kat5 %>% 
   distinct()

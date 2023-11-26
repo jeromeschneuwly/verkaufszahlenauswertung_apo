@@ -1,0 +1,12 @@
+name: total_sales
+title: total_sales
+username: pharmtastic-verkaufsdaten
+account: pharmtastic-verkaufsdaten
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 10628482
+bundleId: 7969921
+url: https://pharmtastic-verkaufsdaten.shinyapps.io/total_sales/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE

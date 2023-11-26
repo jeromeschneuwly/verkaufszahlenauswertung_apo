@@ -1,15 +1,8 @@
 
 ui <- fluidPage(
-#   tags$h2("My secure application"),
-#   verbatimTextOutput("auth_output")
-# )
-# 
-#ui <- secure_app(
-#auth0_ui(fluidPage(
-# logoutButton(
     sidebarLayout(
       sidebarPanel(
-        selectInput("apotheke", "Apotheke auswählen", c("Z", "G")),
+        selectInput("apotheke", "Apotheke auswählen", c("Zentrum", "Glattpark")),
         
         conditionalPanel(condition = "input.conditionedPanels != 3",
                          prettyRadioButtons("colselection", "Typ auswählen:", 
@@ -28,7 +21,8 @@ ui <- fluidPage(
                                                  "Marge (<28%)" = "Marge_Prozent", 
                                                  "Auswertungsrelevante Produkte" = "Relevant", 
                                                  "Selbstwahl" = "Selbstwahl", 
-                                                 "Topseller" = "Topseller"), 
+                                                 "Topseller" = "Topseller",
+                                                 "Dienstleistungen" = "Dienstleistungen"), 
                                      selectize = FALSE, selected = "Relevant")),
         
         selectInput("saleselection", "Verkaufsarten wählen:", 
@@ -58,15 +52,9 @@ ui <- fluidPage(
                    br(),
                    tableOutput("totaltable")
           ),
-          # tabPanel("Bestseller", id = "best", value = 4, br(),
-          #          plotOutput("barbest"),
-          # ),
           id = "conditionedPanels"
           
         )
       )
     )
-    
-#  )
-#)
 )
