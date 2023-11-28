@@ -15,6 +15,7 @@ mapping_kat5 <- read.xlsx("./Kategorie_5.xlsx", colNames = T, rowNames = F,
 
 dienstleistungen <- read.csv("./dienstleistungen_pharmacode.csv", sep = ";",
                                fileEncoding = "latin1", header = TRUE) %>% 
+  distinct(Pharmacode) %>% 
   mutate(dienstleistung = "ja")
 
 

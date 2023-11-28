@@ -21,11 +21,11 @@ server <- function(input, output) {
   })
   
   data_raw <- reactive({
-    dataset <- if(input$apotheke == "Z") {
-      read.delim("./Monatsauswertung_alle_Produkte_2023.csv",
+    dataset <- if(input$apotheke == "Zentrum") {
+      read.delim("./Monatsauswertung_alle_Produkte_2023_Zentrum.csv",
                         sep = ';', fileEncoding = 'latin1')
-    } else {
-      read.delim("./Monatsauswertung_alle_Produkte_2023_2.csv",
+    } else { # Glattpark Daten
+      read.delim("./Monatsauswertung_alle_Produkte_2023_Glatt.csv",
                         sep = ';', fileEncoding = 'latin1')
     }
   })
@@ -38,7 +38,7 @@ server <- function(input, output) {
       # filter(!Pharmacode %in% c(10016054, 7816252, 10015237, 10015202) & 
       #        !is.na(Lagerort.des.Artikels)) %>% 
       left_join(mapping_full, by = c("Pharmacode", "Jahr")) %>%
-      left_join(dienstleistungen, by = c("Pharmacode", "Jahr")) %>% 
+      left_join(dienstleistungen, by = c("Pharmacode")) %>% 
       mutate(Datum = as.Date(paste('1-', Monat, '-', Jahr, sep=''), "%d-%m-%Y"),
              Zeitraum = case_when(Datum < date_2 & Datum >= date_1 ~ 
                                     plot_levels()[2],
