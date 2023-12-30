@@ -188,6 +188,8 @@ server <- function(input, output) {
     #   predata <- apodata_filtered()
     # }
     predata <- apodata_filtered()
+    threshold <- input$threshold
+    
     
     if (input$filterselection == "Alle") {
       data_filtered <- predata
@@ -196,7 +198,7 @@ server <- function(input, output) {
         filter(Relevant == 'ja')
     } else if(input$filterselection == "Marge_Prozent") {
       data_filtered <- predata %>% 
-        filter(Marge_Prozent < 28 & Verkaufsart != 'Kredit')
+        filter(Marge_Prozent <= threshold & Verkaufsart != 'Kredit')
     } else if (input$filterselection == "Selbstwahl") {
       data_filtered <- predata %>% 
         filter(Selbstwahl == 'ja' & Verkaufsart != 'Kredit')

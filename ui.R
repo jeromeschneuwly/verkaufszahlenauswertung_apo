@@ -18,12 +18,15 @@ ui <- fluidPage(
         conditionalPanel(condition = "input.conditionedPanels == 3",
                          selectInput("filterselection", "Filter wählen:", 
                                      choices = c("Alle Produkte" = "Alle",
-                                                 "Marge (<28%)" = "Marge_Prozent", 
+                                                 "Marge" = "Marge_Prozent", 
                                                  "Auswertungsrelevante Produkte" = "Relevant", 
                                                  "Selbstwahl" = "Selbstwahl", 
                                                  "Topseller" = "Topseller",
                                                  "Dienstleistungen" = "Dienstleistungen"), 
-                                     selectize = FALSE, selected = "Relevant")),
+                                     selectize = FALSE, selected = "Relevant"),
+                         conditionalPanel(condition = "input.filterselection == 'Marge_Prozent'",
+                         numericInput("threshold", "Produkte mit Marge kleiner gleich (%):",
+                                      28, min = 0, max = 100))),
         
         selectInput("saleselection", "Verkaufsarten wählen:", 
                     choices = c("Bar", "Rezept", "Bar & Rezept"), 
@@ -31,11 +34,10 @@ ui <- fluidPage(
         
         conditionalPanel(condition = "input.conditionedPanels != 3",
                          uiOutput("detailselection")),
-        
         selectInput("varselection", "Variable wählen:", 
                     choices = c("Gewinn" = "Kumulierte_Absolute_Marge", 
                                 "Umsatz" = "Umsatz", "Anzahl Packungen" = "Packungen"), 
-                    selectize = FALSE, selected = "Kumulierte_Absolute_Marge"),
+                    selectize = FALSE, selected = "Kumulierte_Absolute_Marge")
       ),
       mainPanel(
         tabsetPanel(
